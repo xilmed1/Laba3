@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+       #map {
+         position: absolute;
+        height: 600px;
+        padding-left: 5%;
+        width: 50%;
+        }
+        #display{
+          position: absolute;
+          margin-left:57%;
+          border: solid;
+          border-width: 1px;
+        }
+       }
+    </style>
+  </head>
+  <body>
+    <h3>My browser application</h3>
+    <div id = "content">
+      <div id="map"></div>
+      <div id="display"></div>
+  </div>
+    <script>
+    let contentInfo = "";
+    let newRequest = new XMLHttpRequest();
+    let marker;
+    let ourWeather = {
+      base:"",
+      clouds:{
+        all:""
+      },
+      cod:"",
+      coord:{
+        lon:"" ,
+        lat:""
+      },
+      dt:"",
+      id:"",
+      main:{
+        temp: "" ,
+        pressure: "" ,
+        humidity: "",
+        temp_min: "",
+        temp_max: ""
+        },
+        name: "",
+        sys:{
+          message: "" ,
+          country: "" ,
+          sunrise: "",
+          sunset:""
+        },
+        weather:[{
+          id:"",
+          main:"",
+          description:"",
+          icon:""
+        }],
+        wind:{
+          speed:"" ,
+          deg:""
+        }
+        };
+    let Lat = 49.2331;
+    let Lng = 28.4682;
+
+    let openWeater = "http://api.openweathermap.org/data/2.5/weather?lat="+Lat+"&lon="+Lng+"&units=metric&lang=ua&APPID=4aa7c0b5ab95d5c353e08771e926bb64";
+    getWeather(openWeater);
+      function initMap() {
+        let vinnitsya = {lat: Lat, lng: Lng};
+
+        let map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: vinnitsya
+        });
+
+      function placeMarker(location) {
+        if (marker == null)
+          {
+            marker = new google.maps.Marker({
+            position: vinnitsya,
+            map: map
+
+          });
+          }else {
+              marker.setPosition(location);
+              }
+          }
+        getWeather(openWeater);
+        placeMarker();
+        map.addListener('click', function(e) {
+        placeMarker(e.latLng, map);
+        Lat = e.latLng.lat();
+        Lng = e.latLng.lng();
+        var openWeater = "http://api.openweathermap.org/data/2.5/weather?lat="+Lat+"&lon="+Lng+"&units=metric&lang=ru&APPID=4aa7c0b5ab95d5c353e08771e926bb64";
+        getWeather(openWeater);
+        });
+        }
+
+         function getWeather(openWeater){
+          newRequest.open("GET",openWeater);
+
+          newRequest.onload = () => {
+            ourWeather = JSON.parse(newRequest.responseText);
+            showWeather();
+            console.log(ourWeather);
+          }
+          newRequest.onerror = err => console.error('Ошибка');
+          newRequest.send();
+        }
+        function showWeather(){
+          contentInfo = "Обране місто : "+ourWeather.name + "<br>"+ "Теперишній стан погоди : "+ourWeather.weather[0].description + "<br>" + "Температура : " + ((ourWeather.main.temp).toFixed(2));
+          document.getElementById('display').innerHTML=contentInfo + "<br>" +'<image src="http://openweathermap.org/img/w/'+ourWeather.weather[0].icon+'.png">' ;
+        }
+
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLNeG0aT6ss4IGY0nxzdU-N5EyOdSzIRI&callback=initMap">
+    </script>
+  </body>
+</html>
